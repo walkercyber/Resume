@@ -1,0 +1,47 @@
+﻿@page "/skills"
+@using BlazorLabb3._3.Models
+@using BlazorLabb3._3.Service
+@using BlazorLabb3._3.Components
+
+@rendermode InteractiveServer
+@inject SkillService SkillService
+@inject HttpClient http
+<link rel="stylesheet" href="css/global.css" />
+
+
+
+<h3 class="section-title"></h3>
+
+@if (skills  == null || skills.Count == 0)
+{
+    <p class="text-white">Loading skills..</p>
+}
+else
+{
+    <div class="container-fluid p-5">
+        <div class="row row-cols-auto row-cols-sm-1 row-cols-md-2 row-cols-lg-4
+                d-flex justify-content-center mx-auto gap-3 g-3"
+             style="max-width: 1000px;">
+
+            @foreach (var skill in skills)
+            {
+               
+                <div class="col pb-2">
+                    <SkillCard
+                        myskill = "skill"
+                        skillLevel = "@skill.SkillLevel"/>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<Skill> skills = new();
+    private string star = string.Empty;
+    private List<int> starList = new();
+    protected override async Task OnInitializedAsync()
+    {
+        skills = await http.GetFromJsonAsync<List<Skill>>("https://isabellaswebapplabb3-evfjf4a4a3e4aufk.westeurope-01.azurewebsites.net/skills");
+    }
+}

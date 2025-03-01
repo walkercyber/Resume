@@ -1,0 +1,140 @@
+﻿@using BlazorLabb3._3.Models
+@using BlazorLabb3._3.Service
+@inject AdminService AdminService
+
+
+@if (myproject == null)
+{
+    <p class="text-danger"> No data fetched!</p>
+}
+else
+{
+    <div class="card border-primary bg-dark text-white" style="width: 22rem;">
+
+        <div class="card-header text-center bg-info text-dark fw-bold fs-3">
+            @myproject.Title
+        </div>
+
+        <div class="card-body text-center text-white">
+            <div class="card-title fs-5 mb-5 mt-4 fw-bold">
+                DESCRIPTION: @myproject.Description
+            </div>
+            <p class="card-text fs-5 mb-4 fw-bold">
+                TECHNOLOGIES USED: @myproject.TechnologiesUsed
+            </p>
+        </div>
+            @if (IsAuthorized)
+            {
+                @if (isEdit)
+                {
+                    <EditForm Model="myproject" OnValidSubmit="() => UpdateProject.InvokeAsync(myproject)">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <label class="form-control">Title: </label>
+                        <InputText @bind-Value="myproject.Title" />
+
+                        <label class="form-control">Description: </label>
+                        <InputText @bind-Value="myproject.Description" />
+
+
+                        <label class="form-control">Technologies Used: </label>
+                        <InputText @bind-Value="myproject.TechnologiesUsed" />
+                        <button type="submit" class="btn btn-success" @onclick="UpdateBtn">Update</button>
+                        <button class="btn btn-secondary" @onclick="CancelBtn">Cancel</button>
+                        <button class="btn btn-danger" @onclick="DeleteBtn">Delete</button>
+                    </EditForm>
+
+                }
+                <button class="btn btn-secondary" @onclick="EditBtn">Edit</button>
+                
+
+            }
+    </div>
+}
+
+@if(IsAuthorized)
+{
+<button class="btn btn-secondary" @onclick="ToggleAddProjectForm">Add Project</button>
+    @if (showAddProjectForm)
+    {
+        <EditForm Model="newProject" OnValidSubmit="AddBtn">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div>
+            <label class="form-control">Title: </label>
+                <InputText @bind-Value="newProject.Title"  />
+            </div>
+            <div>
+            <label class="form-control">Description: </label>
+                <InputText @bind-Value="newProject.Description" />
+            </div>
+        <div>
+            <label class=" form-control">Technologies Used: </label>
+            <InputText @bind-Value="newProject.TechnologiesUsed" />
+        </div>
+            <button type="submit" class="btn btn-primary">Add</button>
+        </EditForm>
+    }
+}
+
+@code {
+
+    [Parameter] public Project myproject { get; set; }
+    [Parameter] public bool IsAuthorized { get; set; }
+    [Parameter] public EventCallback OnChange { get; set; }
+    [Parameter] public EventCallback UpdateProject { get; set; }
+    [Parameter] public EventCallback RemoveProject { get; set; }
+    public bool isEdit;
+    private bool showAddProjectForm = false;
+    private Project newProject = new Project();
+    private List<Project> projects;
+
+    public Project project = new();
+
+    public void EditBtn()
+    {
+        isEdit = !isEdit;
+    }
+
+    public async Task UpdateBtn()
+    {
+        isEdit = false;
+        await AdminService.UpdateProject(project);
+        Console.WriteLine($"Saved project: {myproject.Title}");
+        await UpdateProject.InvokeAsync();
+    }
+
+    public void CancelBtn()
+    {
+        isEdit = false;
+    }
+
+    public async Task DeleteBtn()
+    {
+        await AdminService.DeleteProject(myproject.Id);
+        isEdit = false;
+        await RemoveProject.InvokeAsync();
+    }
+
+    public async Task AddBtn()
+    {
+        try
+        {
+            await AdminService.AddProject(newProject);
+            projects = await AdminService.GetProjects();
+            newProject = new Project();
+            showAddProjectForm = false;
+            StateHasChanged();
+        }
+        catch
+        {
+            //
+        }
+    }
+
+    private void ToggleAddProjectForm()
+    {
+        showAddProjectForm = !showAddProjectForm;
+    }
+}

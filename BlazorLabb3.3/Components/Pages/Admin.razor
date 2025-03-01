@@ -1,0 +1,140 @@
+﻿@using BlazorLabb3._3.Models
+@using BlazorLabb3._3.Service
+@rendermode InteractiveServer
+@inject SkillService service
+@inject ProjectService ProjectService
+@inject HttpClient http
+@inject AdminService AdminService
+@page "/Admin"
+
+<div>
+    <h3 class="text-center">Admin</h3>
+
+    @if (!isAuthenticated)
+    {
+        <EditForm Model="login" OnValidSubmit="ManageLogin" class="mb-3 shadow-sm container-fluid p-5 d-flex flex-column align-items-center" style="width: 16rem;">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div>
+                <label for="username">Username:</label>
+                <InputText id="username" @bind-Value="login.Username" class="form-control" />
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                <InputText id="password" @bind-Value="login.Password" type="password" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </EditForm>
+    }
+    else
+    {
+        <h4 class="text-center">Skills</h4>
+        @if (skills == null || skills.Count == 0)
+        {
+            <p class="text-white">Loading skills..</p>
+        }
+        else
+        {
+            <div class="container-fluid p-5">
+                <div class="row row-cols-auto row-cols-sm-1 row-cols-md-2 row-cols-lg-4
+                d-flex justify-content-center mx-auto gap-3 g-3"
+                     style="max-width: 1000px;">
+
+                    @foreach (var skill in skills)
+                    {
+
+                        <div class="col pb-2">
+                            <SkillCard myskill="skill"
+                                       skillLevel="@skill.SkillLevel"
+                                       IsAuthorized="true"
+                                       UpdateSkill="()=>UpdateSkillAsync(skill)"
+                                       RemoveSkill="RefreshData"/>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <h4 class="text-center">Projects</h4>
+        @if (projects == null || projects.Count == 0)
+        {
+            <p class="text-white">Loading projects..</p>
+        }
+        else
+        {
+            <div class="container-fluid p-5">
+                <div class="row row-cols-auto row-cols-sm-1 row-cols-md-2 row-cols-lg-4
+                d-flex justify-content-center mx-auto gap-3 g-3"
+                     style="max-width: 1000px;">
+
+                    @foreach (var project in projects)
+                    {
+
+                        <div class="col pb-2">
+                            <ProjectCard myproject="project"
+                                         IsAuthorized="true"
+                                         UpdateProject="()=>UpdateProjectAsync(project)"
+                                         RemoveProject="RefreshData"/>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+
+    
+</div>
+
+@code {
+    private List<Models.Skill> skills = new();
+    private List<Models.Project> projects = new();
+    private AdminUser login = new AdminUser();
+    private bool isAuthenticated = false;
+    private string errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        skills = await service.GetSkills();
+        projects = await ProjectService.GetProjects();
+    }
+
+    private async Task RefreshData()
+    {
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private void ManageLogin()
+    {
+        isAuthenticated = AdminService.IsAuthenticated(login.Username, login.Password);
+        if (!isAuthenticated)
+        {
+            errorMessage = "Invalid username or password.";
+        }
+        else
+        {
+            errorMessage = null; // Clear any previous error message
+        }
+        StateHasChanged(); // Force a UI update after login
+    }
+
+    private async Task UpdateSkillAsync(Models.Skill skill)
+    {
+
+        var response = await
+        http.PutAsJsonAsync($"https://isabellaswebapplabb3-evfjf4a4a3e4aufk.westeurope-01.azurewebsites.net/skill/{skill.Id}", skill);
+    }
+
+    private async Task UpdateProjectAsync(Project project)
+    {
+
+        var response = await
+        http.PutAsJsonAsync($"https://isabellaswebapplabb3-evfjf4a4a3e4aufk.westeurope-01.azurewebsites.net/project/{project.Id}", project);
+    }
+}

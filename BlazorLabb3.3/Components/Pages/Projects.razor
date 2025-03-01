@@ -1,0 +1,41 @@
+﻿@using BlazorLabb3._3.Models
+@using BlazorLabb3._3.Service
+@using BlazorLabb3._3.Components
+
+@page "/projects"
+
+@rendermode InteractiveServer
+@inject ProjectService ProjectService
+@inject HttpClient http
+<link rel="stylesheet" href="css/global.css" />
+
+
+@if (projects == null || projects.Count == 0)
+{
+    <p class="text-white">Loading projects...</p>
+}
+else
+{
+    <div class="container-fluid p-5">
+        <div class="row row-cols-auto row-cols-sm-1 row-cols-md-2 row-cols-lg-4
+                d-flex justify-content-center mx-auto gap-3 g-3"
+             style="max-width: 1000px;">
+
+            @foreach (var project in projects)
+            {
+                <div class="col pb-2">
+                    <ProjectCard myproject="project" />
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<Project> projects = new();
+    protected override async Task OnInitializedAsync()
+    {
+        projects = await http.GetFromJsonAsync<List<Project>>("https://isabellaswebapplabb3-evfjf4a4a3e4aufk.westeurope-01.azurewebsites.net/projects");
+    }
+}
+

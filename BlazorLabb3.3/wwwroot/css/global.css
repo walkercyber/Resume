@@ -1,0 +1,134 @@
+﻿
+html {
+    font-size: 62.5%;
+}
+
+body {
+    background-color: black;
+    color: white;
+    font-family: 'Arial', sans-serif;
+    overflow-x: hidden;
+    font-size: 1.6rem;
+}
+
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-2vh);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    justify-content: center;
+    padding: 5vw;
+    opacity: 0;
+    animation: fadeIn 1s ease-in-out forwards;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+h1 {
+    transition: all 0.3s ease-in-out;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 1.5rem;
+    color: cyan;
+    margin-bottom: 3vh;
+    animation: float 3s ease-in-out infinite;
+}
+
+.transition {
+    transition: transform 0.3s ease-in-out, color 0.3s ease-in-out, text-shadow 0.3s ease-in-out;
+}
+
+nav a:hover {
+    color: white;
+    text-shadow: 0px 0px 10px cyan;
+    transform: scale(1.1);
+}
+
+@keyframes fadeInScale {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.profile-pic {
+    display: block;
+    margin: 0 auto;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    border: 3px solid cyan;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    object-fit: cover;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeInScale 2.5s ease-out forwards;
+}
+
+@media (max-width: 768px) {
+    .profile-pic {
+        width: 120px ;
+        height: 120px;
+    }
+
+    h1 {
+        font-size: 3rem;
+    }
+
+    .subtitle {
+        font-size: 1.4rem;
+    }
+
+    nav a {
+        font-size: 1.6rem;
+    }
+
+    @media (max-width: 480px) {
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        nav a {
+            font-size: 1.4rem;
+        }
+    }
+}

@@ -1,0 +1,51 @@
+﻿@* <h3>TestAdmin</h3>
+@using BlazorLabb3._3.Service
+@rendermode InteractiveServer
+@inject SkillService service
+@inject HttpClient http
+<link rel="stylesheet" href="css/global.css" />
+@page "/test"
+
+
+<h3 class="section-title"></h3>
+
+@if (skills == null || skills.Count == 0)
+{
+    <p class="text-white">Loading skills..</p>
+}
+else
+{
+    <div class="container-fluid p-5">
+        <div class="row row-cols-auto row-cols-sm-1 row-cols-md-2 row-cols-lg-4
+                d-flex justify-content-center mx-auto gap-3 g-3"
+             style="max-width: 1000px;">
+
+            @foreach (var skill in skills)
+            {
+
+                <div class="col pb-2">
+                    <SkillCard myskill="skill"
+                               skillLevel="@skill.SkillLevel" 
+                               IsAuthorized="true"
+                              UpdateSkill="()=>UpdateSkillAsync(skill)" />
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<Models.Skill> skills = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        skills = await service.GetSkills();
+    }
+    private async Task UpdateSkillAsync(Models.Skill skill)
+    {
+        
+       var response = await 
+       http.PutAsJsonAsync($"https://isabellaswebapplabb3-evfjf4a4a3e4aufk.westeurope-01.azurewebsites.net/skill/{skill.Id}", skill);
+    }
+}
+ *@

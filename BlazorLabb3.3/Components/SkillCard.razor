@@ -1,0 +1,132 @@
+﻿@using BlazorLabb3._3.Models
+@using BlazorLabb3._3.Service
+@inject AdminService AdminService
+
+<div>
+    @if (myskill == null)
+    {
+        <p class="text-danger">No data fetched!</p>
+    }
+    else
+    {
+        <div class="card border-primary bg-dark text-white" style="width: 22rem;">
+            <div class="card-header text-center bg-info text-dark fw-bold fs-3">
+                @myskill.Technology
+            </div>
+
+            <div class="card-body text-center text-white">
+                <div class="card-title fs-5 mb-5 mt-4 fw-bold">YEARS OF EXPERIENCE: @myskill.Yearsofexperience</div>
+                <p class="card-text fs-5 mb-4 fw-bold">SKILL LEVEL: @myskill.SkillLevel</p>
+            </div>
+
+    
+                @if (IsAuthorized)
+                {
+                    @if (isEdit)
+                    {
+                        <EditForm Model="myskill" OnInvalidSubmit="() => UpdateSkill.InvokeAsync(myskill)">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <label class="form-control">Skill name:</label>
+                            <InputText @bind-Value="myskill.Technology" />
+
+                            <label class="form-control">Skill experience:</label>
+                            <InputNumber @bind-Value="myskill.Yearsofexperience" />
+
+                            <label class="form-control">Skill level:</label>
+                            <InputText @bind-Value="myskill.SkillLevel" />
+                            <button type="submit" class="btn btn-success" @onclick="UpdateBtn">Update</button>
+                            <button class="btn btn-secondary" @onclick="CancelBtn">Cancel</button>
+                            <button class="btn btn-danger" @onclick="DeleteBtn">Delete</button>
+                        </EditForm>
+                    }
+                    else
+                    {
+                        <button class="btn btn-secondary" @onclick="EditBtn">Edit</button>
+                        <button class="btn btn-danger" @onclick="DeleteBtn">Delete</button>
+                    }
+                }
+            </div>
+
+    }
+</div>
+
+@if (IsAuthorized)
+{
+    <button class="btn btn-secondary" @onclick="ToggleAddSkillForm">Add Skill</button>
+    @if (showAddSkillForm)
+    {
+        <EditForm Model="newSkill" OnValidSubmit="AddBtn">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <label class="form-control">Skill name:</label>
+            <InputText class="form-control" @bind-Value="newSkill.Technology" />
+            <label class="form-control">Skill experience:</label>
+            <InputNumber class="form-control" @bind-Value="newSkill.Yearsofexperience" />
+            <label class="form-control">Skill level:</label>
+            <InputText class="form-control" @bind-Value="newSkill.SkillLevel" />
+            <button type="submit" class="btn btn-success">Add</button>
+        </EditForm>
+    }
+}
+
+@code {
+    [Parameter] public string skillLevel { get; set; }
+    [Parameter] public Skill myskill { get; set; }
+    [Parameter] public bool IsAuthorized { get; set; }
+    [Parameter] public EventCallback OnChange { get; set; }
+    [Parameter] public EventCallback UpdateSkill { get; set; }
+    [Parameter] public EventCallback RemoveSkill { get; set; }
+    public bool isEdit;
+    private bool showAddSkillForm = false;
+    private List<Skill> skills;
+    private Skill newSkill = new Skill();
+
+    public Skill skill = new();
+
+    public void EditBtn()
+    {
+        isEdit = !isEdit;
+    }
+
+    public async Task UpdateBtn()
+    {
+        isEdit = false;
+        await AdminService.UpdateSkill(myskill);
+        await UpdateSkill.InvokeAsync();
+    }
+
+    public void CancelBtn()
+    {
+        isEdit = false;
+    }
+
+    public async Task DeleteBtn()
+    {
+        await AdminService.DeleteSkill(myskill.Id);
+        isEdit = false;
+        await RemoveSkill.InvokeAsync();
+    }
+
+    public async Task AddBtn()
+    {
+        try
+        {
+            await AdminService.AddSkill(newSkill);
+            skills = await AdminService.GetSkills();
+            newSkill = new Skill();
+            showAddSkillForm = false;
+            StateHasChanged();
+        }
+        catch
+        {
+            // Hantera eventuella fel
+        }
+    }
+
+    private void ToggleAddSkillForm()
+    {
+        showAddSkillForm = !showAddSkillForm;
+    }
+}
