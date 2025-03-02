@@ -13,8 +13,8 @@ namespace BlazorLabb3._3.Service
             _httpClient = httpClient;
             _adminUser = new AdminUser
             {
-                Username = "admin",
-                Password = "admin"
+                Username = "Isabella",
+                Password = "Cab9509"
             };
         }
 
