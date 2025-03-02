@@ -44,7 +44,6 @@
                     else
                     {
                         <button class="btn btn-secondary" @onclick="EditBtn">Edit</button>
-                        <button class="btn btn-danger" @onclick="DeleteBtn">Delete</button>
                     }
                 }
             </div>
@@ -117,7 +116,7 @@
             skills = await AdminService.GetSkills();
             newSkill = new Skill();
             showAddSkillForm = false;
-            StateHasChanged();
+            await OnChange.InvokeAsync();
         }
         catch
         {

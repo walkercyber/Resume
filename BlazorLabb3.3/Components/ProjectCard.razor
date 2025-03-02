@@ -55,7 +55,7 @@ else
 
 @if(IsAuthorized)
 {
-<button class="btn btn-secondary" @onclick="ToggleAddProjectForm">Add Project</button>
+    <button class="btn btn-secondary" @onclick="ToggleAddProjectForm">Add Project</button>
     @if (showAddProjectForm)
     {
         <EditForm Model="newProject" OnValidSubmit="AddBtn">
@@ -125,7 +125,7 @@ else
             projects = await AdminService.GetProjects();
             newProject = new Project();
             showAddProjectForm = false;
-            StateHasChanged();
+            await OnChange.InvokeAsync();
         }
         catch
         {
